@@ -1,0 +1,24 @@
+﻿.chat-container{
+    display:flex;
+    max-height:100px;
+}
+
+.chat{
+    min-height: 500px;
+    position:relative;
+    flex:1;
+    --tw-bg-opacity:1;
+    background-color: darkgrey;
+
+}
+.chat > .input-area{
+    bottom:10px;
+    position:absolute;
+    width:80%;
+    left:10%;
+    text-align:center;
+}
+table, th, td {
+    border: 1px solid black;
+    background-color: white;
+}

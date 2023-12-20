@@ -1,0 +1,42 @@
+﻿@page "/Survey"
+@using WellnessNavigator1.Data.Models;
+@using WellnessNavigator1.Data.Repositories;
+@inject IFeedbackService FS;
+
+<h3>Survey</h3>
+<br />
+<p>Select a button for yes, leave it blank for no</p>
+<EditForm Model="feedback" OnSubmit="@Submit">
+    <table>
+        <tr>
+            <td><label for="useful">Did you find this tool to be useful?</label></td>
+            <td><input type="checkbox"  id="useful" @bind="feedback.Useful"></input></td>
+        </tr>
+        <tr>
+            <td> <label for="useagain">Would you use this tool again?</label></td>
+            <td><input type="checkbox" id="useagain" @bind="feedback.wouldUseAgain"></input></td>
+        </tr>
+        <tr>
+            <td> <label for="continuetouse">Will you continue to use this tool?</label></td>
+            <td> <input type="checkbox" id="continuetouse" @bind="feedback.wouldContinueToUse"></input></td>
+        </tr>
+        <tr>
+            <td> <label for="scorethistool">Please score your satisfaction of this tool from 1 (worst) to 10 (best)</label></td>
+            <td><input type="number" @bind-value="feedback.score" min="1" max="10"/></td>
+        </tr>
+        <tr>
+            <td><label for="comment">Please feel free to leave a comment on how this site can be improved</label></td>
+            <td> <textarea id="comment" @bind="feedback.comment"></textarea></td>
+        </tr>
+        <tr><td><button type="submit">Submit</button></td></tr>
+    
+    </table>
+</EditForm>
+
+@code {
+    UserFeedback feedback = new UserFeedback();
+    public void Submit()
+    {
+        FS.SaveFeedback(feedback);
+    }
+}

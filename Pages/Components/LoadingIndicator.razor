@@ -1,0 +1,21 @@
+﻿@if (IsBusy)
+{
+    <div class="loading-area">
+        <div class="loading-text">
+            <p>@Status</p>
+        </div>
+        <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+    </div>
+
+}
+
+
+
+
+@code {
+    [Parameter]
+    public bool IsBusy{ get; set; }
+
+    [Parameter]
+    public string Status{ get; set; }
+}

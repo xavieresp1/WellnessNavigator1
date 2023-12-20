@@ -1,0 +1,53 @@
+﻿@page "/NewEntry"
+@using WellnessNavigator1.Data.Repositories
+@inject IJournalService JS
+
+@using WellnessNavigator.Data.Models;
+@using Syncfusion.Blazor.Buttons;
+
+<h3>Create a new entry in your journal</h3>
+<EditForm Model="Entry" OnValidSubmit="SaveEntryToDb">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    
+    <label for="titleArea" style="" >Enter the title of your entry:</label><br/>
+    @*<textarea readonly="true"*@
+    <textarea id="titleArea" @bind="@Entry.Title"  @bind:event="oninput" rows="1" cols="50" style="resize:none"></textarea>
+    <br/>
+    <br/>
+    <label for="contentArea" style="">Enter your journal entry:</label><br/>
+    <textarea id="contentArea" @bind="@Entry.Content" @bind:event="oninput" rows="20" cols="50" style="resize:none"></textarea>
+    @*<SfRichTextEditor Value="@Entry.Content" ID="AutoSave" SaveInterval="saveInterval" AutoSaveOnIdle="true">
+        <RichTextEditorEvents ValueChange="UpdateStatus" />
+    </SfRichTextEditor>*@
+    <br />
+    <br />
+    <button type="submit">Submit Entry</button>
+    
+</EditForm>
+
+
+@code {
+   
+    public JournalEntry Entry = new JournalEntry();
+    DateTime submissionDate = DateTime.Now;
+    private string content { get; set; }= "";
+    private string title { get; set; } = "";
+    private int saveInterval { get; set; } = 2000;
+    public void OnInitialized()
+    {
+
+    }
+
+    public void SaveEntryToDb()
+    {
+        Entry.Content = JS.StripHtmlTags(Entry.Content);
+        Entry.createdDate = submissionDate;
+        Entry.SentimentType = "/" + Entry.EntryID;
+        JS.SaveJournalEntry(Entry);
+        Entry.Title = "";
+        Entry.Content = "";
+    }
+
+
+}

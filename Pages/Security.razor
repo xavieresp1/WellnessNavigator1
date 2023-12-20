@@ -1,0 +1,131 @@
+﻿@page "/Security"
+@using WellnessNavigator.Data.Models;
+@using WellnessNavigator1.Classes;
+@using WellnessNavigator1.Data.Models
+@using WellnessNavigator1.Data.Repositories;
+@inject NavigationManager Navigate;
+@inject IAccountService AS
+@using System.Security.Cryptography;
+@using System.Text;
+
+<h3>@username, your password has been cracked.</h3><br/><br/>
+<h3>Reset your password below to use a stronger encryption</h3> <br/><br/>
+<h1 style="color: darkred;">@message</h1>
+
+<EditForm Model="currentUser" OnValidSubmit="UpdatePassword">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <label for="usernameArea" style="">Enter your username:</label><br />
+    @*<textarea readonly="true"*@
+    <textarea id="usernameArea" @bind="@currentUser.username" @bind:event="oninput" rows="1" cols="50" style="resize:none"></textarea>
+    <br />
+    <br />
+    <label for="passwordArea" style="">Enter your old password:</label><br />
+    <textarea id="passwordArea" @bind="@currentUser.oldPassword" @bind:event="oninput" rows="1" cols="50" style="resize:none"></textarea>
+    <br />
+    <br />
+    <label for="passwordArea" style="">Enter your new password:</label><br />
+    <textarea id="passwordArea" @bind="@currentUser.newPassword" @bind:event="oninput" rows="1" cols="50" style="resize:none"></textarea>
+    <br />
+    <br />
+    <label for="passwordArea" style="">Confirm your new password:</label><br />
+    <textarea id="passwordArea" @bind="@currentUser.confirmPassword" @bind:event="oninput" rows="1" cols="50" style="resize:none"></textarea>
+    <br />
+    <br />
+
+    <button type="submit">Log In</button>
+    <br />
+</EditForm>
+
+@code {
+    private string username = "";
+    public EditUser currentUser = new EditUser();
+    public List<UserAccount> crackedAccounts = new List<UserAccount>();
+    private string message = "";
+    SHA256WithSaltandPepper SHA256SP = new SHA256WithSaltandPepper();
+    MD5Algorithm MD5Alg = new MD5Algorithm();
+
+
+    protected override void OnInitialized()
+    {
+        // Check if the Username query parameter is present in the URL.
+        var uri = new Uri(Navigate.Uri);
+        var queryString = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        currentUser.username = queryString["Username"];
+
+        if (string.IsNullOrEmpty(currentUser.username))
+        {
+            Navigate.NavigateTo("/Login", true);
+        }
+        username = currentUser.username;
+    }
+
+
+    public void UpdatePassword()
+    {
+
+        if (AS.GetUserAccount(currentUser.username) != null) //check that there is a matching username in the database
+        {
+            UserAccount userAccount = AS.GetUserAccount(currentUser.username); //get the username from the database
+            switch (userAccount.hashSelection)
+            {
+                case 0: // SHA256 with Salt and Pepper format
+                    if (userAccount.password == SHA256SP.ComputeHash(currentUser.oldPassword, userAccount.salt))
+                    {
+                        Navigate.NavigateTo("/Login");
+                    }
+                    else
+                    {
+                        message = "Incorrect password";
+                    }
+                    break;
+                case 1: // MD5 format
+                    if (userAccount.password == MD5Alg.ComputeHash(currentUser.oldPassword))
+                    {
+                        if(currentUser.confirmPassword == currentUser.newPassword)
+                        {
+                            AS.AccountUpgrader(userAccount, currentUser.newPassword);
+                            Navigate.NavigateTo("/Login");
+                        }
+                        else
+                        {
+                            message = "new passwords don't match";
+                        }
+
+                    }
+                    else
+                    {
+                        message = "Incorrect password";
+                    }
+                    break;
+                case 2: // Double-hashed
+                    if (userAccount.password == SHA256SP.ComputeHash(MD5Alg.ComputeHash(currentUser.oldPassword), userAccount.salt))
+                    {
+                        AS.AccountUpgrader(userAccount, currentUser.newPassword);
+                        Navigate.NavigateTo("/Login");
+                    }
+                    else
+                    {
+                        message = "Incorrect password";
+                    }
+                    break;
+                default:
+                    // Handle other hashSelection values if needed.
+                    break;
+            }
+
+        }
+        else
+        {
+            message = "Username not found";
+        }
+
+
+
+        currentUser.oldPassword = "";
+        currentUser.newPassword = "";
+        currentUser.confirmPassword = "";
+        //NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+
+    }
+}

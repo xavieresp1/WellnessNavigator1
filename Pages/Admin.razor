@@ -1,0 +1,34 @@
+﻿@page "/Admin"
+@using WellnessNavigator1.Data.Repositories
+@using WellnessNavigator1.Classes
+@using WellnessNavigator.Data.Models
+@using WellnessNavigator1.Data.Models
+@using System.Security.Cryptography
+@using System.Text
+@inject NavigationManager Navigate
+@inject IAccountService AS
+
+<h3>Administration Page</h3>
+
+<text>There are @crackedAccounts.Count users with cracked passwords and @weakPasswords.Count with a weak password</text>
+<br />
+<br />
+<button @onclick="UpgradeAllUsers">Upgrade all user's security</button>
+
+@code {
+    private UserAccount admin = new UserAccount();
+    public List<UserAccount> crackedAccounts= new List<UserAccount>();
+    public List<UserAccount> weakPasswords = new List<UserAccount>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        crackedAccounts = AS.GetCrackedAccounts();
+        weakPasswords = AS.GetUsersWithWeakPasswords();
+
+    }
+    private void UpgradeAllUsers()
+    {
+        AS.MassUpgrader();
+        Navigate.NavigateTo("/Admin", true);
+    }
+}

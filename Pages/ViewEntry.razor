@@ -1,0 +1,60 @@
+﻿@page "/ViewEntry/{Id:int}"
+@using WellnessNavigator1.Data.Repositories
+@inject IJournalService JS
+
+@*@using Syncfusion.Blazor.RichTextEditor*@
+@using WellnessNavigator.Data.Models;
+@*@using Syncfusion.Blazor.Buttons;*@
+
+<h3>Edit an entry in your journal</h3>
+<EditForm Model="Entry" OnValidSubmit="SaveEntryToDb">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <label for="titleArea" style="">Edit the title of your entry:</label><br />
+    @*<textarea readonly="true"*@
+    <textarea id="titleArea" @bind="@Entry.Title" @bind:event="oninput" rows="1" cols="50" style="resize:none"></textarea>
+    <br/>
+    <br/>
+    <label for="contentArea" style="">Edit the content of your entry:</label><br/>
+    <textarea id="contentArea" @bind="@Entry.Content" @bind:event="oninput" rows="20" cols="50" style="resize:none"></textarea>
+    @*<SfRichTextEditor Value="@Entry.Content" ID="AutoSave" SaveInterval="saveInterval" AutoSaveOnIdle="true">
+        <RichTextEditorEvents ValueChange="UpdateStatus" />
+    </SfRichTextEditor>*@
+    <br />
+    <br />
+    <button type="submit">Edit Entry</button>
+
+</EditForm>
+
+
+@code {
+    public JournalEntry Entry;
+    public JournalEntry temp;
+    DateTime editDate = DateTime.Now;
+
+    [Parameter]
+    public int Id{ get; set; }
+
+    public int entryId{ get; set; }
+
+    private int saveInterval { get; set; } = 2000;
+    protected override void OnInitialized()
+    {
+        Entry = JS.GetJournalEntry(Id);
+    }
+   
+
+    public void SaveEntryToDb()
+    {
+        temp= (JS.GetJournalEntries()).Last();
+        Entry.EntryID = temp.EntryID;
+        Entry.Content = JS.StripHtmlTags(Entry.Content);
+        Entry.editedDate = editDate;
+        JS.UpdateJournalEntry(Entry);
+        Entry.Title = "";
+        Entry.Content = "";
+    }
+
+
+}

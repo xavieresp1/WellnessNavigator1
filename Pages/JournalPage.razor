@@ -1,0 +1,77 @@
+﻿@page "/JournalPage"
+@using TinyMCE.Blazor
+@using WellnessNavigator.Data.Models;
+@using Microsoft.AspNetCore.Components
+@using WellnessNavigator1.Data.Repositories;
+@using WellnessNavigator1.Pages.Components
+@inject NavigationManager navigate;
+@inject IJournalService JS;
+<h3 class="page-title">Journal</h3>
+
+<button onclick="@NavigateToNewEntry">Make a new entry</button>
+@*<SfGrid DataSource="@DataSource">
+    <GridColumns>
+        <GridColumn Field="@nameof(JournalEntry.Title)" HeaderText="Title"></GridColumn>
+        <GridColumn Field="@nameof(JournalEntry.Content)" HeaderText="Entry Body"></GridColumn>
+        <GridColumn Field="@nameof(JournalEntry.SentimentType)" HeaderText="Overall Sentiment"></GridColumn>
+        <GridColumn Field="@nameof(JournalEntry.createdDate)" HeaderText="Entry Date"></GridColumn>
+        <GridColumn Field="@nameof(JournalEntry.editedDate)" HeaderText="Last Edited:"></GridColumn>
+        <GridColumn HeaderText="View/Edit Entry">
+          <Template> 
+                @{
+                    id = (context as JournalEntry).EntryID;
+                }
+                <button onclick="@NavigateToEditPage">View/Edit entry</button>
+            </Template>
+        </GridColumn>
+    </GridColumns>
+</SfGrid>*@
+
+<table>
+    <tr>
+        <th>Title</th>
+        <th>Entry Body</th>
+        <th>Entry Date</th>
+        <th>Last edited</th>
+        <th>View/Edit Entry</th>
+    </tr>
+    @foreach(var entry in DataSource)
+    {
+        <tr>
+            <td>@entry.Title</td>
+            <td>@entry.Content</td>
+            <td>@entry.createdDate</td>
+            <td>@entry.editedDate</td>
+            <td><a href=@("/ViewEntry/"+entry.EntryID)>View/Edit Entry</a></td>
+        </tr>
+    }
+</table>
+
+
+@code {
+ 
+    public int id{get;set;}
+    JournalEntry entry = new JournalEntry();
+    JournalEntry context = new JournalEntry();
+    List<JournalEntry> DataSource = new List<JournalEntry>();
+    private string content = "Add a new entry to your journal";
+
+
+    protected override void OnInitialized()
+    {
+        DataSource = JS.GetJournalEntries();
+    }
+
+    public void NavigateToNewEntry(MouseEventArgs args)
+    {
+
+        navigate.NavigateTo(uri:"NewEntry");
+    }
+    public void NavigateToEditPage(MouseEventArgs args)
+    {
+        navigate.NavigateTo(uri: ("/ViewEntry/"+id));
+    }
+
+    
+}
+

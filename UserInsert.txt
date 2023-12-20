@@ -1,0 +1,19 @@
+INSERT INTO UserAccounts (displayName, username, password, accountCreation, hashSelection, salt, cracked, message, isAdmin)
+VALUES
+('U1', 'U1', 'e10adc3949ba59abbe56e057f20f883e', '2023-11-01 20:12:40.0720211', 1, NULL, 1, 'Single MD5 hashing (WEAK PASSWORD)', 0),
+('U2', 'U2', '5f4dcc3b5aa765d61d8327deb882cf99', '2023-11-01 20:13:11.2258691', 1, NULL, 1, 'Single MD5 hashing (WEAK PASSWORD)', 0),
+('U3', 'U3', '8621ffdbc5698829397d97767ac13db3', '2023-11-01 20:13:22.9798169', 1, NULL, 1, 'Single MD5 hashing (WEAK PASSWORD)', 0),
+('U4', 'U4', '276f8db0b86edaa7fc805516c852c889', '2023-11-01 20:13:33.2932333', 1, NULL, 1, 'Single MD5 hashing (WEAK PASSWORD)', 0),
+('U5', 'U5', '37b4e2d82900d5e94b8da524fbeb33c0', '2023-11-01 20:13:43.6416214', 1, NULL, 1, 'Single MD5 hashing (WEAK PASSWORD)', 0),
+('U6', 'U6', '089b9e69124c013cfc851accdee07b1d', '2023-11-01 20:14:36.9009566', 1, NULL, 0, 'Single MD5 hashing (WEAK PASSWORD)', 0),
+('U7', 'U7', '61e421a14ec783ed4741de1f1df0819b', '2023-11-01 20:14:47.1119435', 1, NULL, 0, 'Single MD5 hashing (WEAK PASSWORD)', 0),
+('U8', 'U8', '6669348b484e3008dca2bfa8e85e40b5', '2023-11-01 20:14:54.5759751', 1, NULL, 0, 'Single MD5 hashing (WEAK PASSWORD)', 0),
+('U9', 'U9', 'ec930a612dbbb3175ebf36d7bc5982b5', '2023-11-01 20:15:02.4677033', 1, NULL, 0, 'Single MD5 hashing (WEAK PASSWORD)', 0),
+('U10', 'U10', 'd4e32573c69de7c088414df55459fdda', '2023-11-01 20:15:12.6512763', 1, NULL, 0, 'Single MD5 hashing (WEAK PASSWORD)', 0),
+('U11', 'U11', '7f8732ec90c1af3c034f98c973f0c16a3bc1d8c0f1edc167f0f710e9c833f470', '2023-11-01 20:15:21.1296160', 0, 0x11C8869090967B5287E57D8BDB6BA738, 0, 'Single SHA256 with salt and pepper hashing', 0),
+('U12', 'U12', '0c897cd0cbf96919f4f5f5efc57bedb208087abcd9b605fc2ac6d172c2ebe6ee', '2023-11-01 20:15:29.8872983', 0, 0xB12A56C95FE83CC878A0E6FDDCF1CB4C, 0, 'Single SHA256 with salt and pepper hashing', 0),
+('U13', 'U13', '81256a4a4fc67b9463d060d1f804c997c1189472eeb46de54b048655d0ed49d5', '2023-11-01 20:15:39.6426046', 0, 0x211BA755D3A28B544AB54E225005DAB1, 0, 'Single SHA256 with salt and pepper hashing', 0),
+('U14', 'U14', '30ef5c08a0f31dc030c895280b00500c48fd2a4e362f69ee4e40339b27600d2a', '2023-11-01 20:16:04.2985111', 0, 0xF1259AB54D0457BBF3950469F0C8C48D, 0, 'Single SHA256 with salt and pepper hashing', 0),
+('U15', 'U15', '03d3b149b654d39224b4368de071f82b97f780310f08c3d314df9b5e972e9d9f', '2023-11-01 20:16:12.2163808', 0, 0x215C8BFBBDB7EDFE6689B410A3E4E2FF, 0, 'Single SHA256 with salt and pepper hashing', 0),
+('A1', 'A1', 'd8578edf8458ce06fbc5bb76a58c5ca4', '2023-11-01 20:16:27.4783463', 1, NULL, 1, 'Single MD5 hashing (WEAK PASSWORD)', 1),
+('A2', 'A2', '520e07a2848c09b3356b44fc0d42fb65e57f5d5301f8355c48b5d98c6a48a74a', '2023-11-01 20:16:46.1368901', 0, 0xD4F86A137BDFDFC7E51123AD41AD7550, 0, 'Single SHA256 with salt and pepper hashing', 1);

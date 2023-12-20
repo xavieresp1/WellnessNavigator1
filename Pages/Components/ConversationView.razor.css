@@ -1,0 +1,19 @@
+﻿.conversation-area{
+    width:100%;
+    height: 100%;
+  
+    overflow-y:scroll;
+    scroll-behavior:auto;
+    background-color:darkgrey;
+}
+
+.conversation-item{
+    padding: 10px;
+    min-height: 40px;
+    --tw-text-opacity:1;
+    color: darkslategray;
+}
+.conversation-area > .ai-replay{
+    --tw-bg-opacity:1;
+    background-color:rgba(68,70,84,var(--tw-bg-opacity));
+}

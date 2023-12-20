@@ -1,0 +1,18 @@
+﻿@using Syncfusion.Blazor.Buttons;
+@using WellnessNavigator.Data.Models;
+@inject NavigationManager navigate;
+
+<SfButton OnClick="@NavigateToEditPage">Edit/View Entry</SfButton>
+
+@code {
+    [Parameter]
+    public int id{ get; set; }
+
+
+    public void NavigateToEditPage(MouseEventArgs args)
+    {
+
+        navigate.NavigateTo(uri: "/ViewEntry/{id}");
+    }
+
+}

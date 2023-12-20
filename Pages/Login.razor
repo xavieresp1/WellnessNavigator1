@@ -1,0 +1,148 @@
+﻿@page "/Login"
+@inject IAccountService AS
+@using WellnessNavigator1.Data.Repositories
+@using WellnessNavigator1.Classes
+@using System.Security.Cryptography;
+@using System.Text;
+@inject NavigationManager Navigate
+@using WellnessNavigator.Data.Models
+@using WellnessNavigator1.Data.Models
+
+    <h3>Log into your account</h3>
+    <NavLink class="nav-link" href="Register">
+        <button>Register an account</button>
+    </NavLink>
+    <br />
+    <br />
+
+    <h1 style="color: darkred;">@Message</h1>
+    <EditForm Model="currentUser" OnValidSubmit="CheckLoginValid">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <label for="disNameArea" style="">Enter your display name:</label><br />
+        <textarea id="disNameArea" @bind="@currentUser.displayName" @bind:event="oninput" rows="1" cols="50" style="resize:none"></textarea>
+        <br />
+        <br />
+        <label for="usernameArea" style="">Enter your username:</label><br />
+        @*<textarea readonly="true"*@
+        <textarea id="usernameArea" @bind="@currentUser.username" @bind:event="oninput" rows="1" cols="50" style="resize:none"></textarea>
+        <br />
+        <br />
+        <label for="passwordArea" style="">Enter your password:</label><br />
+        <textarea id="passwordArea" @bind="@currentUser.password" @bind:event="oninput" rows="1" cols="50" style="resize:none"></textarea>
+        <br />
+        <br />
+        <button type="submit">Log In</button>
+        <br />
+    </EditForm>
+
+
+
+
+@code {
+
+    public List<UserAccount> nonCrackedMD5Accounts = new List<UserAccount>();
+    public List<UserAccount> crackedMD5Accounts = new List<UserAccount>();
+    public List<UserAccount> weakPasswords = new List<UserAccount>();
+    public UserAccount currentUser = new UserAccount();
+    private string Message = "";
+    SHA256WithSaltandPepper SHA256SP = new SHA256WithSaltandPepper();
+    MD5Algorithm MD5Alg = new MD5Algorithm();
+    DateTime creationDate = DateTime.Now;
+    private int SelectedHashingMethod { get; set; } = 0; // Default selected method (SHA256)
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        crackedMD5Accounts = AS.GetCrackedAccounts(); //take note of which Accounts had insecure passwords 
+        nonCrackedMD5Accounts = AS.GetNonRainbowAccounts();
+        weakPasswords = AS.GetUsersWithWeakPasswords();
+    }
+
+    public void CheckLoginValid()
+    {
+
+        if(AS.GetUserAccount(currentUser.username) != null) //check that there is a matching username in the database
+        {
+            UserAccount userAccount = AS.GetUserAccount(currentUser.username); //get the username from the database
+            switch (userAccount.hashSelection)
+            {
+                case 0: // SHA256 with Salt and Pepper format
+                    if (userAccount.password == SHA256SP.ComputeHash(currentUser.password, userAccount.salt))
+                    {
+                        if(userAccount.isAdmin == true)
+                        {
+                            Navigate.NavigateTo("/Admin");
+                        }
+                        else
+                        {
+                            Navigate.NavigateTo("/Account?Username=" + currentUser.username);
+                        }
+                    }
+                    break;
+                case 1: // MD5 format
+                    if (userAccount.password == MD5Alg.ComputeHash(currentUser.password))
+                    {
+                        if (crackedMD5Accounts.Any(account => account.userID == userAccount.userID) || weakPasswords.Any(account =>account.userID == userAccount.userID))
+                        //if this account has a password in the rainbow table or a weak password, urge them to update
+                        {
+                            //For the rest of the users, migrate them via double-hashing
+                            AS.AccountUpgrader(nonCrackedMD5Accounts);
+
+                            Navigate.NavigateTo("/Security?Username=" + userAccount.username);
+                        }
+                        else if (nonCrackedMD5Accounts.Any(account => account.userID == userAccount.userID))
+                        {
+                            if (userAccount.isAdmin == true)
+                            {
+                                Navigate.NavigateTo("/Admin");
+                            }
+                            else
+                            {
+                                Navigate.NavigateTo("/Account?Username=" + currentUser.username);
+                            }
+                        }
+                    }
+                    break;
+                case 2: // Double-hashed
+                    if (userAccount.password == SHA256SP.ComputeHash(MD5Alg.ComputeHash(currentUser.password), userAccount.salt))
+                    {
+                        if (userAccount.isAdmin == true)
+                        {
+                            
+                            Navigate.NavigateTo("/Admin");
+                        }
+                        else if (weakPasswords.Any(account => account.userID == userAccount.userID))
+                        {
+                            Navigate.NavigateTo("/Security?Username=" + userAccount.username);
+                        }
+                        else
+                        {
+                            Navigate.NavigateTo("/Account?Username=" + currentUser.username);
+                        }
+                    }
+                    else
+                    {
+                        Message = "Incorrect password";
+                    }
+                    break;
+                default:
+                    // Handle other hashSelection values if needed.
+                    break;
+            }
+
+        }
+        else
+        {
+            Message = "Username not found";
+        }
+
+        currentUser.username = "";
+        currentUser.password = "";
+        currentUser.displayName = "";
+        //NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+
+    }
+
+
+}

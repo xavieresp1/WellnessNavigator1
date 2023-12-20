@@ -1,0 +1,55 @@
+﻿@page "/TherapeuticTechniques"
+@using OpenAI.Net;
+@using WellnessNavigator.Data.Models;
+@using WellnessNavigator1.Data.Models;
+@using WellnessNavigator1.Data.Repositories;
+@using WellnessNavigator1.Pages.Components
+@*@using Syncfusion.Blazor.Grid;*@
+@inject IOpenAIService OpenAIService
+@inject NavigationManager navigate;
+@inject IJournalService JS;
+
+
+<h3 class="page-title">Therapeutic Techniques</h3>
+<p>Select an entry from your journal that you would like therapeutic recommendations for:</p>
+
+<table>
+    <tr>
+        <th>Title</th>
+        <th>Entry Body</th>
+        <th>Entry Date</th>
+        <th>Last edited</th>
+        <th>View/Edit Entry</th>
+    </tr>
+    @foreach (var entry in DataSource)
+    {
+        <tr>
+            <td>@entry.Title</td>
+            <td>@entry.Content</td>
+            <td>@entry.createdDate</td>
+            <td>@entry.editedDate</td>
+            <td><a href=@("/AITherapy/"+entry.EntryID)>Receive advice from the AI assistant on this entry</a></td>
+        </tr>
+    }
+</table>
+
+@code{
+    public int id { get; set; }
+    JournalEntry entry;
+    JournalEntry context;
+    List<JournalEntry> DataSource = new List<JournalEntry>();
+    private string content = "Add a new entry to your journal";
+
+
+    protected override void OnInitialized()
+    {
+        context = new JournalEntry();
+        entry = new JournalEntry();
+        DataSource = JS.GetJournalEntries();
+    }
+    public void NavigateToAIPage(MouseEventArgs args)
+    {
+        navigate.NavigateTo(uri: ("/AITherapy/" + id));
+    }
+
+}

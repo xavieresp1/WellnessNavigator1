@@ -1,0 +1,110 @@
+﻿@page "/AITherapy/{id:int}"
+@using OpenAI.Net;
+@using WellnessNavigator.Data.Models;
+@using WellnessNavigator1.Data.Models;
+@using WellnessNavigator1.Data.Repositories;
+@using WellnessNavigator1.Pages.Components
+@inject IOpenAIService OpenAIService
+@inject IJournalService JS;
+@inject NavigationManager navigate;
+<table>
+    <tr>
+        <td>
+            <button onclick="@NavigateBackToTTPage">choose another entry</button>
+        </td>
+        <td>
+            <button onclick="@ClearSearchbar">Clear the search bar</button>
+        </td>
+        <td>
+            <button onclick="@switchToSurvey">Let us know if this helped you!</button>
+        </td>
+    </tr>
+</table>
+
+
+<LoadingIndicator IsBusy="@IsBusy" Status="@status"></LoadingIndicator>
+<div class="input-area">
+    <ChatInput SearchModel="search" OnGenerateTextCompletionSubmitted="Search" IsBusy="@IsBusy"></ChatInput>
+</div>
+
+<div class="chat-container">
+    <div class="chat">
+        <ConversationView Conversation="@conversation"></ConversationView>
+    </div>
+    
+</div>
+
+
+
+
+@code {
+    private bool IsBusy = false;
+    private string status = string.Empty;
+    private JournalEntry entry = new JournalEntry();
+
+    [Parameter]
+    public int id{ get; set; }
+
+    SearchModel search = new SearchModel()
+        {
+            SystemContext = "You are a therapeutic technique recommendation system. You will be presented with the journal entry of a user. Decide how they are feeling and recommend ways that they can improve their daily life. Do not respond to questions that are vulgar or inappropriate, keep the facade of a therapist as long as you can",
+            AssistantContext=""
+        };
+    Conversation conversation = new Conversation();
+
+    protected override void OnInitialized()
+    {
+        search.SearchText = "";
+        entry = JS.GetJournalEntry(id);
+        search.SearchText = entry.Title + " : "+entry.Content;
+        Search();
+    }
+
+    public async Task Search()
+    {
+        var temp = "Entry: " + search.SearchText;
+        search.SearchText = temp;
+        conversation.AddItem("User", search.SearchText);
+        var messagesRequest = new List<Message>()
+        {
+            Message.Create(ChatRoleType.System,search.SystemContext),
+            Message.Create(ChatRoleType.Assistant,search.AssistantContext)
+        };
+
+        messagesRequest.Add(Message.Create(ChatRoleType.User, search.SearchText));
+
+        conversation.AddItem("AI", "");
+        setIsBusy(true, "Generating...");
+
+        await foreach (var result in OpenAIService.Chat.GetStream(messagesRequest, o =>
+        {
+            o.N = 1;
+            o.MaxTokens = 2048;
+        }))
+        {
+            conversation.AppendToCurrentItem(result.Result!.Choices[0].Delta.Content);
+            StateHasChanged();
+        }
+        setIsBusy(false);
+
+        search.AssistantContext += conversation.GetCurrentItemMessage();
+        search.SearchText = "";
+    }
+    private void setIsBusy(bool isBusy, string statustxt="")
+    {
+        IsBusy = isBusy;
+        status = statustxt;
+    }
+    private void NavigateBackToTTPage(MouseEventArgs args)
+    {
+        navigate.NavigateTo(uri: "/TherapeuticTechniques");
+    }
+    private void ClearSearchbar(MouseEventArgs args)
+    {
+        search.SearchText = "";
+    }
+    public void switchToSurvey(MouseEventArgs args)
+    {
+        navigate.NavigateTo("/Survey");
+    }
+}

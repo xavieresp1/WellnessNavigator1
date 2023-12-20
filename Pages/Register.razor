@@ -1,0 +1,84 @@
+﻿@page "/Register"
+@using WellnessNavigator1.Data.Repositories
+@using WellnessNavigator1.Classes
+@using System.Security.Cryptography;
+@using System.Text;
+@inject NavigationManager NavigationManager
+@inject IAccountService AS
+
+
+@using WellnessNavigator.Data.Models;
+
+
+<h3>Create your account</h3>
+<EditForm Model="User" OnValidSubmit="SaveUserToDb">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <label for="usernameArea" style="">Enter your username:</label><br />
+    @*<textarea readonly="true"*@
+    <textarea id="usernameArea" @bind="@User.username" @bind:event="oninput" rows="1" cols="50" style="resize:none"></textarea>
+    <br />
+    <br />
+    <label for="disNameArea" style="">Enter your display name:</label><br />
+    <textarea id="disNameArea" @bind="@User.displayName" @bind:event="oninput" rows="1" cols="50" style="resize:none"></textarea>
+    <br/>
+    <br/>
+    <label for="passwordArea" style="">Enter your password:</label><br />
+    <textarea id="passwordArea" @bind="@User.password" @bind:event="oninput" rows="1" cols="50" style="resize:none"></textarea>
+    <br/>
+    <br/>
+    <label for="AdminCheck">Admin?</label>
+    <input id="AdminCheck" type="checkbox" @bind="@User.isAdmin" @bind:event="oninput" width:10px height:10px></input>
+    <br/><br/>
+    
+    <label for="HashingSelection" style="">Select how youd like your password to be hashed:</label><br/>
+    <select @bind="SelectedHashingMethod" class="form-control" style="width: 200px;">
+        <option value=0>SHA256 with S & P</option>
+        <option value=1>MD5</option>
+    </select>
+    
+    <button type="submit">Register</button>
+
+</EditForm>
+
+
+@code {
+    public UserAccount User = new UserAccount();
+    DateTime creationDate = DateTime.Now;
+    SHA256WithSaltandPepper SHA256SP = new SHA256WithSaltandPepper();
+    MD5Algorithm MD5Alg = new MD5Algorithm();
+    string HashedPass = "";
+    private int SelectedHashingMethod { get; set; } = 0; // Default selected method (SHA256)
+
+    public void SaveUserToDb(){
+        if(SelectedHashingMethod == 0)
+        {
+            int SaltSize = 16;
+            // Generate a random salt
+            User.salt = new byte[SaltSize];
+            using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(User.salt);
+            }
+            User.password = SHA256SP.ComputeHash(User.password, User.salt);
+            User.hashSelection = 0;
+            User.message = "Single SHA256 with salt and pepper hashing";
+        }
+        else if(SelectedHashingMethod == 1)
+        {
+            User.password = MD5Alg.ComputeHash(User.password);
+            User.hashSelection = 1;
+            User.message = "Single MD5 hashing";
+        }
+        User.accountCreation = creationDate;
+        AS.SaveUserAccount(User);
+        User.username = "";
+        User.password = "";
+        User.displayName = "";
+        NavigationManager.NavigateTo("/Login", true);
+   
+    }
+
+
+}
