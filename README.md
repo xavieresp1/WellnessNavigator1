@@ -31,3 +31,5 @@ After completing the installation and configuration, you can run the application
 
 ## Database Setup
 The Migrations folder of the project should handle most of the database setup. All you need to do is replace the connection string in the appsettings.json folder with the connection string provided by the SQL Server Management Studio after you've initialized a database server. Once you've connected the database server with the project, navigate to the package manager console and run the command "Update-Database", provided by the Entity-Framework Core package library. This should create the Database tables necessary for the project.
+## Chat bot setup
+If you'd like to use the Therapeutic Assistant, you'll have to update the OpenAI API secret key in the appsettings.json file to your own OpenAI API's secret key.
