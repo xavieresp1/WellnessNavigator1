@@ -3,7 +3,7 @@
 Before you begin, ensure you have the following installed and configured to your system:
 - Git
 - Visual Studio
-- MySQL Database Server
+- SQL Server Management Studio
 
 ## Installation Steps
 
@@ -28,3 +28,6 @@ Before you begin, ensure you have the following installed and configured to your
 
 ## Running the Application
 After completing the installation and configuration, you can run the application directly from Visual Studio by pressing `F5` or clicking on the `Run` button.
+
+## Database Setup
+The Migrations folder of the project should handle most of the database setup. All you need to do is replace the connection string in the appsettings.json folder with the connection string provided by the SQL Server Management Studio after you've initialized a database server. Once you've connected the database server with the project, navigate to the package manager console and run the command "Update-Database", provided by the Entity-Framework Core package library. This should create the Database tables necessary for the project.
